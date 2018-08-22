@@ -9,6 +9,7 @@ class App extends React.Component {
       isLoading: true,
       contacts: [],
     }
+    this.fetchData = this.fetchData.bind(this);
   }
 
   componentWillMount(){
@@ -20,14 +21,23 @@ class App extends React.Component {
   }
 
   componentDidMount(){
-    if (!localStorage.getItem('contacts')){
+    const date = localStorage.getItem('contactsDate');
+    const contactsDate = date && new Date(parseInt(date));
+    const now = new Date();
+    const dataAge = Math.round((now - contactsDate) / (1000 * 60));
+    const tooOld = dataAge >= 1;
+    if (tooOld){
       this.fetchData();
     } else {
-      console.log('using data from local storage')
+      console.log(`using data from local storage that are ${dataAge} minutes old`)
     }
   }
 
   fetchData(){
+    this.setState({
+      contacts: [],
+      isLoading: true,
+    });
     fetch('https://randomuser.me/api/?results=50&nat=us,dk,fr,gb')
     .then(response => response.json())
     .then(parsedJSON => parsedJSON.results.map(user => (
@@ -56,7 +66,7 @@ class App extends React.Component {
             <div>
                 <header>
                     <img src={image} />
-                    <h1>Fetching Data <button className="btn btn-sm btn-danger">Fetch now</button></h1>
+                    <h1>Fetching Data <button className="btn btn-sm btn-danger" onClick={this.fetchData}>Fetch now</button></h1>
                 </header>
                 <div className={`content ${isLoading ? 'is-loading' : ''}`}>
                     <div className="panel-group">
