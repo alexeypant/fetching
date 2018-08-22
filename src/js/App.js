@@ -11,8 +11,20 @@ class App extends React.Component {
     }
   }
 
+  componentWillMount(){
+    const contactsFromLocalStorage = localStorage.getItem('contacts');
+    contactsFromLocalStorage && this.setState({
+       contacts: JSON.parse(contactsFromLocalStorage),
+       isLoading: false,
+    })
+  }
+
   componentDidMount(){
-    this.fetchData();
+    if (!localStorage.getItem('contacts')){
+      this.fetchData();
+    } else {
+      console.log('using data from local storage')
+    }
   }
 
   fetchData(){
@@ -33,7 +45,12 @@ class App extends React.Component {
     .catch(error => console.log('parsing error', error))
   }
 
-    render() {
+  componentWillUpdate(nextProps, nextState){
+    localStorage.setItem('contacts', JSON.stringify(nextState.contacts));
+    localStorage.setItem('contactsDate', Date.now());
+  }
+
+  render() {
         const {isLoading, contacts} = this.state;
         return (
             <div>
@@ -59,6 +76,6 @@ class App extends React.Component {
                 </div>
             </div>
         );
-    }
+  }
 }
 export default App;
